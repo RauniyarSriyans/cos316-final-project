@@ -1,0 +1,55 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collaborative Text Editor</title>
+    <link rel="stylesheet" type="text/css" href="frontend.css">
+</head>
+<body>
+    <h1 id="title">Collaborative Text Editor</h1>
+    <div id="editor" contenteditable="true">
+        <textarea rows="35" cols="125" placeholder="Start typing here ..."></textarea>
+    </div>
+
+    <script type="text/javascript">
+        var socket = io();
+        var textarea = document.getElementById('editor');
+
+        textarea.oninput = function() {
+            var text = textarea.value;
+            socket.emit('text change', text);
+        };
+
+        socket.on('update text', function(data) {
+            textarea.value = data.text;
+        });
+    </script>
+</body>
+
+</html> -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Collaborative Editor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+</head>
+<body>
+    <textarea id="editor" style="width: 100%; height: 300px;"></textarea>
+
+    <script>
+        var socket = io();
+        var editor = document.getElementById('editor');
+
+        editor.addEventListener('input', function() {
+            var text = editor.value;
+            socket.emit('send_change', { content: text });
+        });
+
+        socket.on('receive_change', function(data) {
+            editor.value = data.content;
+        });
+    </script>
+</body>
+</html>

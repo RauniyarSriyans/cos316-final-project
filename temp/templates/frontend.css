@@ -1,0 +1,15 @@
+
+body{
+    align-items: center;
+}
+#title{
+    text-align: center;
+    font-weight: bold;
+}
+
+#editor{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
