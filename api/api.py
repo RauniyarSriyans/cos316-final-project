@@ -14,6 +14,10 @@ document = [] # global var
 def index():
     return {'data': json.dumps(document)}
 
+# changing the port number
+if __name__ == '__main__':
+   app.run(debug=True, port=8000)
+
 @app.route('/data', methods=['POST'])
 def data():
   data = json.loads(request.data)
