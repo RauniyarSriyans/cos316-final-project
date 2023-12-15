@@ -69,9 +69,9 @@ def handle_change(data):
 
     #convert it back into a single string
     combinedText = ''.join(transformedDoc)
-    document =  data["content"]
+    document = data["content"]
 
-    emit('receive_document', {'content': combinedText}, broadcast=True, include_self=True)
+    emit('receive_document', {'content': combinedText}, broadcast=True, include_self=False)
 
 @socketio.on('disconnect')
 def handle_disconnect():
