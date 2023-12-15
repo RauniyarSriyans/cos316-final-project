@@ -16,9 +16,8 @@ CORS(app)
 socketio = SocketIO(app)
 
 document = ""
-#clients = set() # set of clients
 
-def checkChange(ogText, newText):
+def otChange(ogText, newText):
    textTuplesList = tuple(itertools.zip_longest(ogText.splitlines(keepends=True), newText.splitlines(keepends=True), fillvalue = ""))
    print("Text tupes: ", textTuplesList)
 
@@ -33,7 +32,6 @@ def checkChange(ogText, newText):
 
       ogTextLineList = list(ogTextLine)
 
-      #print("OG LINE", ogTextLineList)
       for tag, i1,i2,j1,j2 in opcodes:
         if tag == "delete":
             print("Delete: {} ".format(ogTextLine[i1:i2]))
@@ -44,8 +42,6 @@ def checkChange(ogText, newText):
         elif tag == "insert":
             print("Insert: {} ".format(newTextLine[j1:j2], i1))
             ogTextLineList.insert(i1, newTextLine[j1:j2])
-        elif tag == "equal":
-            print("Equal : {} ".format(ogTextLine[i1:i2]))
       transformedText.append(''.join(ogTextLineList))
     
    print("\nTransformed Sequence : ", transformedText)
@@ -60,7 +56,7 @@ def index():
 def handle_connect():
    global document
    print("SOMEONE NEW!")
-   #clients.add(request.sid)
+
    if document:
     print("requestoing document")
     emit('receive_document', {'content': document})
@@ -69,23 +65,17 @@ def handle_connect():
 def handle_change(data):
     global document
     
-    #print("data changed: ", data['content'])
-    #print("document: ", document)
-    transformedDoc = checkChange(document, data["content"])
+    transformedDoc = otChange(document, data["content"])
 
     #convert it back into a single string
     combinedText = ''.join(transformedDoc)
     document =  data["content"]
-    #print("THIS IS THE FORMATING", (data['content']))
-    #print("COMBEIND TEXT", combinedText)
 
-    #ot_document = ot_changes(data['content'], document)
     emit('receive_document', {'content': combinedText}, broadcast=True, include_self=True)
 
 @socketio.on('disconnect')
 def handle_disconnect():
   print('disconnected ):')
-  #print(clients)
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=2000, debug=True)
