@@ -1,55 +1,76 @@
-<!-- <!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Collaborative Text Editor</title>
-    <link rel="stylesheet" type="text/css" href="frontend.css">
-</head>
-<body>
-    <h1 id="title">Collaborative Text Editor</h1>
-    <div id="editor" contenteditable="true">
-        <textarea rows="35" cols="125" placeholder="Start typing here ..."></textarea>
-    </div>
-
-    <script type="text/javascript">
-        var socket = io();
-        var textarea = document.getElementById('editor');
-
-        textarea.oninput = function() {
-            var text = textarea.value;
-            socket.emit('text change', text);
-        };
-
-        socket.on('update text', function(data) {
-            textarea.value = data.text;
-        });
-    </script>
-</body>
-
-</html> -->
-
 <!DOCTYPE html>
 <html>
 <head>
     <title>Collaborative Editor</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.js"></script>
+    <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+    <style>
+        .editor {
+            border-radius: 1rem;
+            padding: 0.5rem;
+            min-width: 100%;
+            min-height: 40rem;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4); /* Add box shadow */
+        }
+
+        body {
+            background-color: #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(to bottom, #e5e7eb, #9ca3af);
+        }
+
+        .project {
+            min-width: 66%;
+            /* margin-top: 10rem; */
+        }
+
+        :root {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
 </head>
 <body>
-    <textarea id="editor" style="width: 100%; height: 300px;"></textarea>
+    <div class="project">
+        <h1>Princeton COS 316 FALL 2023 Final Project</h1>
+        <p>Created by: Sriyans Rauniyar, Christopher Speed, Danica Truong</p>
+        <textarea id="editor" placeholder="type here :D" class="editor"></textarea>
+    </div>
 
     <script>
         var socket = io();
         var editor = document.getElementById('editor');
+
+        var caretPosition = editor.selectionStart;
+
+        socket.on('connect', function() {
+            socket.emit('new_client');
+        });
 
         editor.addEventListener('input', function() {
             var text = editor.value;
             socket.emit('send_change', { content: text });
         });
 
-        socket.on('receive_change', function(data) {
+        socket.on('receive_document', function(data) {
             editor.value = data.content;
         });
+
+        socket.on('receive_document_change', function(data){
+            caretPosition = editor.selectionStart;
+            editor.value = data.content;
+            if (data.pos < caretPosition){
+                editor.setSelectionRange(caretPosition + 1, caretPosition + 1);
+            }
+            else{
+                editor.setSelectionRange(caretPosition, caretPosition);
+            }
+        });
+
     </script>
 </body>
 </html>
