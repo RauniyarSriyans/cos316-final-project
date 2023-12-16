@@ -37,6 +37,7 @@
             else{
                 editor.setSelectionRange(caretPosition, caretPosition);
             }
+            socket.emit('got_changes');
         });
 
     </script>
