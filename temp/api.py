@@ -19,33 +19,63 @@ document = ""
 
 def otChange(ogText, newText):
    textTuplesList = tuple(itertools.zip_longest(ogText.splitlines(keepends=True), newText.splitlines(keepends=True), fillvalue = ""))
-   print("Text tupes: ", textTuplesList)
-
+   #print("Text tupes: ", textTuplesList)
+   ogTextList = ogText.splitlines(keepends=True)
+   print(ogTextList)
+   lineIndex = 0
    transformedText = []
+   changefound = False
+   changePos = 0
 
-   for textStrings in textTuplesList:
-      ogTextLine = textStrings[0]
-      newTextLine = textStrings[1]
+   while not changefound:
+      for textStrings in textTuplesList:
+        ogTextLine = textStrings[0]
+        newTextLine = textStrings[1]
 
-      s = difflib.SequenceMatcher(None, ogTextLine, newTextLine)
-      opcodes = s.get_opcodes()
+        s = difflib.SequenceMatcher(None, ogTextLine, newTextLine)
+        opcodes = s.get_opcodes()
 
-      ogTextLineList = list(ogTextLine)
+        ogTextLineList = list(ogTextLine)
+        # if the op code doesnt == equal then do the if statements?
 
-      for tag, i1,i2,j1,j2 in opcodes:
-        if tag == "delete":
-            print("Delete: {} ".format(ogTextLine[i1:i2]))
-            ogTextLineList[i1:i2] = [""] * (i2 - i1)
-        elif tag == "replace":
-            print("Replace: {}  ".format(ogTextLine[i1:i2], newTextLine[j1:j2]))
-            ogTextLineList[i1:i2] = newTextLine[j1:j2]
-        elif tag == "insert":
-            print("Insert: {} ".format(newTextLine[j1:j2], i1))
-            ogTextLineList.insert(i1, newTextLine[j1:j2])
-      transformedText.append(''.join(ogTextLineList))
-    
-   print("\nTransformed Sequence : ", transformedText)
-   return transformedText
+        tag, i1, i2, j1, j2 = 'string', 0, 0, 0, 0
+        for tag, i1, i2, j1, j2 in opcodes:       
+          if tag == "delete":
+              #print("Delete: {} ".format(ogTextLine[i1:i2]))
+              ogTextLineList[i1:i2] = [""] * (i2 - i1)
+              changePos+= len(newTextLine)
+
+              ogTextList[lineIndex] = ogTextLineList
+              changefound = True
+          
+          elif tag == "replace":
+              #print("Replace: {}  ".format(ogTextLine[i1:i2], newTextLine[j1:j2]))
+              ogTextLineList[i1:i2] = newTextLine[j1:j2]
+              changePos+= len(newTextLine)
+
+              ogTextList[lineIndex] = ogTextLineList
+              changefound = True
+          
+          elif tag == "insert":
+              #print("Insert: {} ".format(newTextLine[j1:j2], i1))
+              ogTextLineList.insert(i1, newTextLine[j1:j2])
+              changePos+= len(newTextLine)
+
+              ogTextList[lineIndex] = ogTextLineList
+              changefound = True
+          
+          else:
+              #changePos+= len(ogTextLine)
+              changefound = False
+        transformedText.append(''.join(ogTextLineList))
+        lineIndex+1
+
+    #basiclaly you want to break once you found the change to keep that position,
+      #but now we are not getting the rest of the text post change
+        #so we have to figure out a way to get that in :3
+   transformedText.append(''.join(ogTextList[lineIndex:]))
+   #print("\nTransformed Sequence : ", transformedText)
+   return transformedText, changePos
 
 
 @app.route('/')
@@ -65,13 +95,13 @@ def handle_connect():
 def handle_change(data):
     global document
     
-    transformedDoc = otChange(document, data["content"])
-
+    transformedDoc, changePos = otChange(document, data["content"])
+    print("change position: ", changePos)
     #convert it back into a single string
     combinedText = ''.join(transformedDoc)
     document = data["content"]
 
-    emit('receive_document', {'content': combinedText}, broadcast=True, include_self=False)
+    emit('receive_document_change', {'content': combinedText, 'pos': changePos}, broadcast=True, include_self=False)
 
 @socketio.on('disconnect')
 def handle_disconnect():

@@ -13,6 +13,8 @@
         var socket = io();
         var editor = document.getElementById('editor');
 
+        var caretPosition = editor.selectionStart;
+
         socket.on('connect', function() {
             socket.emit('new_client');
         });
@@ -24,6 +26,17 @@
 
         socket.on('receive_document', function(data) {
             editor.value = data.content;
+        });
+
+        socket.on('receive_document_change', function(data){
+            caretPosition = editor.selectionStart;
+            editor.value = data.content;
+            if (data.pos < caretPosition){
+                editor.setSelectionRange(data.pos, data.pos);
+            }
+            else{
+                editor.setSelectionRange(caretPosition, caretPosition);
+            }
         });
 
     </script>
