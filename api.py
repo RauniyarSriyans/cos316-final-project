@@ -6,10 +6,11 @@ import difflib
 from pprint import pprint
 import itertools
 import logging
+import datetime
 
 
 log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
+# log.setLevel(logging.ERROR)
 
 app = Flask(__name__)
 
@@ -59,7 +60,13 @@ def handle_connect():
 @socketio.on('send_change')
 def handle_change(data):
     global document
-
+    frontend_timestamp = data['time']
+    # Get the server-side timestamp
+    server_timestamp = time.time() * 1000  # Convert to millisecond
+    print(server_timestamp)
+    # Calculate the time delay
+    time_delay = server_timestamp - frontend_timestamp
+    print("Delay (in ms): ", time_delay)
     transformedDoc, changePos = otChange(document, data["content"])
     print("change position: ", changePos)
     #convert it back into a single string

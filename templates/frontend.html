@@ -42,18 +42,19 @@
     </div>
 
     <script>
-        var socket = io();
-        var editor = document.getElementById('editor');
+        let socket = io();
+        let editor = document.getElementById('editor');
 
-        var caretPosition = editor.selectionStart;
+        let caretPosition = editor.selectionStart;
 
         socket.on('connect', function() {
             socket.emit('new_client');
         });
 
         editor.addEventListener('input', function() {
-            var text = editor.value;
-            socket.emit('send_change', { content: text });
+            let text = editor.value;
+            let timestamp = new Date().getTime();
+            socket.emit('send_change', { content: text, time: timestamp });
         });
 
         socket.on('receive_document', function(data) {
