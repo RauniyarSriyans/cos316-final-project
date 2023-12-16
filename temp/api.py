@@ -51,7 +51,7 @@ def handle_connect():
   print("SOMEONE NEW!")
 
   if document:
-    print("requestoing document")
+    print("requesting document")
     emit('receive_document', {'content': document})
 
 @socketio.on('send_change')
