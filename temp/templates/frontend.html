@@ -64,12 +64,11 @@
             caretPosition = editor.selectionStart;
             editor.value = data.content;
             if (data.pos < caretPosition){
-                editor.setSelectionRange(caretPostion + 1, caretPostion + 1);
+                editor.setSelectionRange(caretPosition + 1, caretPosition + 1);
             }
             else{
                 editor.setSelectionRange(caretPosition, caretPosition);
             }
-            socket.emit('got_changes');
         });
 
     </script>

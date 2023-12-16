@@ -6,7 +6,7 @@ import difflib
 from pprint import pprint
 import itertools
 import logging
-from queue import Queue
+
 
 log = logging.getLogger('werkzeug')
 log.setLevel(logging.ERROR)
@@ -18,7 +18,6 @@ CORS(app)
 socketio = SocketIO(app)
 
 document = ""
-editQueue = Queue()
 
 def otChange(ogText, newText):
 
@@ -61,19 +60,13 @@ def handle_connect():
 def handle_change(data):
     global document
 
-    editQueue.put(data['content'])
     transformedDoc, changePos = otChange(document, data["content"])
-    #print("change position: ", changePos)
+    print("change position: ", changePos)
     #convert it back into a single string
     combinedText = ''.join(transformedDoc)
     document = data["content"]
 
     emit('receive_document_change', {'content': combinedText, 'pos': changePos}, broadcast=True, include_self=False)
-
-@socketio.on('got_changes')
-def delete_from_queue():
-   editQueue.get(0)
-   print(editQueue.qsize())
 
 @socketio.on('disconnect')
 def handle_disconnect():
